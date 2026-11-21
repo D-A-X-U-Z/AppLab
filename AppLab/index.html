@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UTVM - Admin Labs | Sistema Administrador Web de Reservación de Laboratorios Académicos</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Estilos Institucionales UTVM -->
+  <link rel="stylesheet" href="./assets/css/styles.css" />
+</head>
+<body class="min-h-screen flex flex-col lg:flex-row bg-[#F8FAFC] text-slate-900 antialiased">
+
+  <!-- =================================================================================
+       SIDEBAR IZQUIERDO INSTITUCIONAL UTVM
+       ================================================================================= -->
+  <aside id="sidebar-nav" class="w-full lg:w-72 bg-[#0F5132] text-white flex flex-col justify-between shrink-0 shadow-xl z-20">
+    <!-- Parte Superior: Logo + Conmutador de Rol + Navegación 4 Módulos -->
+    <div class="p-5 space-y-5">
+      <!-- Logotipo Institucional -->
+      <div class="flex items-center gap-3 pb-4 border-b border-emerald-800/80">
+        <div class="w-11 h-11 rounded-2xl bg-[#047857] border border-emerald-400/40 flex items-center justify-center shadow-md shrink-0">
+          <i data-lucide="FlaskConical" class="w-6 h-6 text-emerald-100"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-base font-extrabold tracking-tight text-white">UTVM - Admin Labs</span>
+          </div>
+          <p class="text-[11px] text-emerald-200 font-medium leading-tight">
+            Universidad Tecnológica del Valle del Mezquital
+          </p>
+        </div>
+      </div>
+
+      <!-- Conmutador de Rol en Vivo (2.1 Administrador vs 2.2 Encargado) -->
+      <div class="p-3.5 rounded-2xl bg-emerald-950/70 border border-emerald-700/70 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1">
+            <i data-lucide="user-cog" class="w-3.5 h-3.5"></i> Conmutador de Rol en Vivo
+          </span>
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        </div>
+
+        <select id="role-switcher-select" onchange="cambiarRolEnVivo(this.value)"
+          class="w-full px-2.5 py-2 rounded-xl text-xs font-bold bg-[#0F5132] text-white border border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-400 cursor-pointer">
+          <option value="Administrador">2.1 Administrador / Coordinador Académico</option>
+          <option value="Encargado">2.2 Encargado de Laboratorio</option>
+        </select>
+
+        <div id="active-user-display" class="pt-1 border-t border-emerald-800/80">
+          <p class="text-xs font-bold text-white truncate">Mtro. Omar Hernández Landeros</p>
+          <p class="text-[11px] text-emerald-200 truncate">2.1 Administrador / Coordinador Académico</p>
+        </div>
+      </div>
+
+      <!-- Menú de Navegación de los 4 Módulos -->
+      <nav class="space-y-1.5">
+        <p class="px-2 text-[10px] font-bold uppercase tracking-wider text-emerald-300/90 mb-1">
+          Módulos del Administrador Web
+        </p>
+
+        <button onclick="cambiarModulo('mod1')" data-mod="mod1"
+          class="nav-btn w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-semibold bg-[#047857] text-white shadow-sm transition">
+          <span class="flex items-center gap-2.5">
+            <i data-lucide="calendar-check-2" class="w-4 h-4 shrink-0"></i>
+            <span class="text-left text-xs font-bold">1. Reservaciones y Agenda</span>
+          </span>
+          <span id="nav-badge-pendientes" class="px-2 py-0.5 text-xs font-bold rounded-full bg-amber-400 text-slate-950">2</span>
+        </button>
+
+        <button onclick="cambiarModulo('mod2')" data-mod="mod2"
+          class="nav-btn w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-medium text-emerald-100 hover:bg-white/10 hover:text-white transition">
+          <span class="flex items-center gap-2.5">
+            <i data-lucide="scan-qr-code" class="w-4 h-4 shrink-0"></i>
+            <span class="text-left text-xs font-bold">2. Control Acceso y QR</span>
+          </span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-800 text-emerald-200 font-mono">QR</span>
+        </button>
+
+        <button onclick="cambiarModulo('mod3')" data-mod="mod3"
+          class="nav-btn w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-medium text-emerald-100 hover:bg-white/10 hover:text-white transition">
+          <span class="flex items-center gap-2.5">
+            <i data-lucide="cpu" class="w-4 h-4 shrink-0"></i>
+            <span class="text-left text-xs font-bold">3. Catálogo Laboratorios</span>
+          </span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-800 text-emerald-200">4 Labs</span>
+        </button>
+
+        <button onclick="cambiarModulo('mod4')" data-mod="mod4"
+          class="nav-btn w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-medium text-emerald-100 hover:bg-white/10 hover:text-white transition">
+          <span class="flex items-center gap-2.5">
+            <i data-lucide="bar-chart-3" class="w-4 h-4 shrink-0"></i>
+            <span class="text-left text-xs font-bold">4. Reportes y Estadísticas</span>
+          </span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-800 text-emerald-200">CSV/PDF</span>
+        </button>
+      </nav>
+
+      <!-- Acceso rápido para simular nueva solicitud desde la App Móvil -->
+      <div class="pt-2">
+        <button onclick="abrirModalNuevaSolicitudApp()"
+          class="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold bg-emerald-500/20 text-emerald-100 border border-emerald-400/40 hover:bg-emerald-500/30 transition">
+          <i data-lucide="smartphone" class="w-4 h-4 text-emerald-300"></i>
+          <span>+ Simular Solicitud App Móvil</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Pie de Créditos Institucionales: Equipo 4 - UTVM -->
+    <div class="p-4 m-4 rounded-2xl bg-emerald-950/90 border border-emerald-800 text-[11px] space-y-2">
+      <div class="flex items-center justify-between border-b border-emerald-800/80 pb-1.5">
+        <span class="font-extrabold text-emerald-300 uppercase tracking-wider">Créditos • Equipo 4</span>
+        <span class="px-1.5 py-0.5 rounded bg-emerald-800 text-emerald-100 font-bold text-[10px]">4° "C" IA</span>
+      </div>
+      <div class="text-emerald-100/90 space-y-0.5 leading-snug">
+        <p><strong>Asignatura:</strong> Metodología No Code con IA</p>
+        <p><strong>Docente:</strong> Mtro. Omar Hernández Landeros</p>
+        <p><strong>Carrera:</strong> T.S.U. en Inteligencia Artificial</p>
+      </div>
+      <div class="pt-1 border-t border-emerald-800/80 text-[10px] text-emerald-200/90 space-y-0.5">
+        <p class="font-bold text-white">Integrantes del Equipo 4:</p>
+        <p>• Erick F. Ramírez Bautista (<code class="font-mono">2530706</code>)</p>
+        <p>• Jonathan Axel Rafael Reyes (<code class="font-mono">2530701</code>)</p>
+        <p>• Diana (<code class="font-mono">2530702</code>)</p>
+        <p>• Misael López Lucio (<code class="font-mono">2530703</code>)</p>
+        <p>• Daniel E. García Cardón (<code class="font-mono">2530704</code>)</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- =================================================================================
+       ÁREA PRINCIPAL (HEADER SUPERIOR + CONTENIDO DE LOS 4 MÓDULOS)
+       ================================================================================= -->
+  <div class="flex-1 flex flex-col min-w-0">
+
+    <!-- HEADER SUPERIOR -->
+    <header id="top-header" class="bg-white border-b border-slate-200 px-6 py-3.5 sticky top-0 z-10 shadow-sm">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <!-- Indicador de Sincronización con App Móvil + Estado XAMPP MySQL -->
+        <div class="flex flex-wrap items-center gap-2.5">
+          <!-- Pulso Verde Sincronización App Móvil -->
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-950 text-white text-xs font-medium shadow-sm">
+            <span class="relative flex h-2.5 w-2.5">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
+            </span>
+            <span>Sincronizado en tiempo real con App Móvil <strong>Reservas Labs UTVM</strong></span>
+          </div>
+
+          <!-- Indicador Modo Híbrido XAMPP MySQL / Fallback Local -->
+          <div id="xampp-status-badge" onclick="abrirModalXAMPP()"
+            class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-300 shadow-sm cursor-pointer">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+            <span>🟡 Verificando conexión XAMPP MySQL...</span>
+          </div>
+
+          <span id="header-role-badge" class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-900 text-emerald-100">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Rol: 2.1 Administrador
+          </span>
+        </div>
+
+        <!-- Buscador Global + Botón Panel XAMPP / MySQL -->
+        <div class="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+          <div class="relative flex-1 sm:w-64">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+            <input id="global-search-input" type="text"
+              oninput="cambiarModulo('mod1'); actualizarFiltroMod1('search', this.value)"
+              placeholder="Buscar alumno, matrícula o folio..."
+              class="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-600 bg-slate-50" />
+          </div>
+
+          <button onclick="abrirModalXAMPP()"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#0F5132] text-white hover:bg-[#047857] shadow-sm transition shrink-0">
+            <i data-lucide="database" class="w-4 h-4 text-emerald-300"></i>
+            <span>Panel XAMPP / MySQL</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main id="main-content" class="flex-1 p-6 space-y-6 max-w-[1600px] w-full mx-auto">
+
+      <!-- Membrete visible únicamente al imprimir/exportar a PDF -->
+      <div class="hidden print-only p-4 mb-4 border-b-2 border-[#0F5132]">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-xl font-extrabold text-[#0F5132]">UNIVERSIDAD TECNOLÓGICA DEL VALLE DEL MEZQUITAL (UTVM)</h1>
+            <p class="text-xs font-bold text-slate-700">Sistema Administrador Web de Reservación de Laboratorios Académicos • Reporte Oficial de Auditoría</p>
+            <p class="text-[11px] text-slate-500">Asignatura: Metodología No Code con IA | Docente: Mtro. Omar Hernández Landeros | Grupo 4° "C" T.S.U. en IA</p>
+          </div>
+          <div class="text-right text-xs">
+            <p class="font-bold">Equipo 4 - UTVM</p>
+            <p>Base de Datos: utvm_reservas_labs (MySQL 3306)</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- =============================================================================
+           MÓDULO 1: GESTIÓN DE RESERVACIONES Y AGENDA (PANTALLAS 1.1 Y 1.2)
+           ============================================================================= -->
+      <section id="section-mod1" class="module-section space-y-6">
+        <!-- Título de Módulo -->
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-[#047857]">Módulo 1 • Pantalla 1.1</span>
+            <h1 class="text-2xl font-extrabold text-slate-900">Tablero de Solicitudes y Agenda Diaria de Laboratorios</h1>
+            <p class="text-xs text-slate-600 mt-0.5">
+              Gestione solicitudes recibidas desde la App Móvil, asigne folios con código QR y controle la ocupación en tiempo real.
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="restaurarDatosSemillaEquipo4()"
+              class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 transition">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-emerald-700"></i>
+              <span>Restaurar Caso Semilla (Equipo 4)</span>
+            </button>
+            <button onclick="abrirModalNuevaSolicitudApp()"
+              class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#047857] text-white hover:bg-[#0F5132] shadow-sm transition">
+              <i data-lucide="plus-circle" class="w-4 h-4"></i>
+              <span>Nueva Reserva (App Móvil)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 Tarjetas KPI Superiores en Vivo -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- KPI 1: Solicitudes Pendientes -->
+          <div onclick="actualizarFiltroMod1('estado', 'Pendiente')"
+            class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-amber-400 cursor-pointer transition flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-wider text-amber-700">Solicitudes Pendientes</p>
+              <p id="kpi-pendientes" class="text-3xl font-extrabold text-slate-900 mt-1">2</p>
+              <p class="text-[11px] text-slate-500 mt-1">Requieren dictamen y generación QR</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center">
+              <i data-lucide="clock-alert" class="w-6 h-6"></i>
+            </div>
+          </div>
+
+          <!-- KPI 2: Reservas Confirmadas -->
+          <div onclick="actualizarFiltroMod1('estado', 'Confirmado')"
+            class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-emerald-500 cursor-pointer transition flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-wider text-emerald-700">Reservas Confirmadas</p>
+              <p id="kpi-confirmadas" class="text-3xl font-extrabold text-slate-900 mt-1">2</p>
+              <p class="text-[11px] text-slate-500 mt-1">Con folio activo y QR en App Móvil</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+              <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+            </div>
+          </div>
+
+          <!-- KPI 3: Asistencias Registradas (Check-in) -->
+          <div onclick="actualizarFiltroMod1('estado', 'Asistio')"
+            class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-blue-500 cursor-pointer transition flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-wider text-blue-700">Asistencias (Check-in)</p>
+              <p id="kpi-asistencias" class="text-3xl font-extrabold text-slate-900 mt-1">1</p>
+              <p class="text-[11px] text-slate-500 mt-1">Validadas mediante lector QR / Folio</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center">
+              <i data-lucide="user-check" class="w-6 h-6"></i>
+            </div>
+          </div>
+
+          <!-- KPI 4: Estaciones Disponibles -->
+          <div onclick="cambiarModulo('mod3')"
+            class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-emerald-600 cursor-pointer transition flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-wider text-slate-600">Estaciones Disponibles</p>
+              <p id="kpi-estaciones" class="text-3xl font-extrabold text-[#0F5132] mt-1">24 / 75</p>
+              <p class="text-[11px] text-slate-500 mt-1">En laboratorios operativos hoy</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-900 text-emerald-100 flex items-center justify-center">
+              <i data-lucide="monitor-check" class="w-6 h-6"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Barra de Filtros Funcionales (Pantalla 1.1) -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <!-- Búsqueda por nombre, matrícula o folio -->
+            <div class="lg:col-span-2">
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Buscar Estudiante, Matrícula o Folio</label>
+              <div class="relative">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                <input id="mod1-search-input" type="text"
+                  oninput="actualizarFiltroMod1('search', this.value)"
+                  placeholder="Ej. Erick, 2530706, LAB-2026-9812..."
+                  class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-600" />
+              </div>
+            </div>
+
+            <!-- Selector de Fecha -->
+            <div>
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Fecha de Reserva</label>
+              <input id="mod1-date-input" type="date" value=""
+                onchange="actualizarFiltroMod1('fecha', this.value)"
+                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-600" />
+            </div>
+
+            <!-- Filtro por Laboratorio -->
+            <div>
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Laboratorio Académico</label>
+              <select id="mod1-lab-select" onchange="actualizarFiltroMod1('id_laboratorio', this.value)"
+                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-600 bg-white">
+                <option value="Todos">Todos los laboratorios</option>
+              </select>
+            </div>
+
+            <!-- Filtro por Estado -->
+            <div>
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Estado de Reservación</label>
+              <select id="mod1-status-select" onchange="actualizarFiltroMod1('estado', this.value)"
+                class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-600 bg-white">
+                <option value="Todos">Todos los estados</option>
+                <option value="Pendiente">🟡 Pendiente</option>
+                <option value="Confirmado">🟢 Confirmado</option>
+                <option value="Asistio">🔵 Asistió (Check-in)</option>
+                <option value="Cancelado">🔴 Cancelado</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 text-xs">
+            <span id="mod1-results-count" class="text-slate-500 font-medium">Mostrando reservaciones registradas</span>
+            <div class="flex items-center gap-2">
+              <button onclick="document.getElementById('mod1-date-input').value='2026-09-28'; actualizarFiltroMod1('fecha', '2026-09-28')"
+                class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold hover:bg-emerald-100 transition">
+                Agenda 2026-09-28 (Equipo 4)
+              </button>
+              <button onclick="limpiarFiltrosMod1()"
+                class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 transition">
+                Limpiar filtros
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla Interactiva de Reservaciones (Pantalla 1.1) -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-extrabold uppercase tracking-wider text-slate-600">
+                  <th class="px-4 py-3.5">Folio</th>
+                  <th class="px-4 py-3.5">Estudiante</th>
+                  <th class="px-4 py-3.5">Matrícula</th>
+                  <th class="px-4 py-3.5">Laboratorio</th>
+                  <th class="px-4 py-3.5">Fecha</th>
+                  <th class="px-4 py-3.5">Bloque Horario</th>
+                  <th class="px-4 py-3.5">Motivo Académico de Uso</th>
+                  <th class="px-4 py-3.5">Estado</th>
+                  <th class="px-4 py-3.5 text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-reservaciones-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- =============================================================================
+           MÓDULO 2: CONTROL DE ACCESO Y VALIDACIÓN QR (PANTALLA 2.1)
+           ============================================================================= -->
+      <section id="section-mod2" class="module-section hidden space-y-6">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-[#047857]">Módulo 2 • Pantalla 2.1</span>
+          <h1 class="text-2xl font-extrabold text-slate-900">Control de Acceso y Validación Óptica de Código QR</h1>
+          <p class="text-xs text-slate-600 mt-0.5">
+            Verifique la autenticidad del comprobante QR generado en la App Móvil del estudiante o valide por folio manual para registrar el Check-in en <code class="font-mono font-bold">bitacora_accesos</code>.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Columna Izquierda (5 cols): Visor Óptico de Cámara Web + Botones de Simulación + Entrada Manual -->
+          <div class="lg:col-span-5 space-y-4">
+            <!-- Tarjeta del Visor Óptico QR -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="camera" class="w-4 h-4 text-emerald-700"></i>
+                  <h3 class="text-sm font-bold text-slate-900">Visor de Escaneo Óptico QR</h3>
+                </div>
+                <button id="btn-toggle-camera" onclick="alternarCamaraQR()"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-700 text-white hover:bg-emerald-800 transition">
+                  <i data-lucide="camera" class="w-4 h-4"></i> Activar Cámara Web
+                </button>
+              </div>
+
+              <!-- Marco del Escáner con Animación Láser -->
+              <div class="relative w-full h-56 rounded-2xl bg-slate-950 overflow-hidden flex items-center justify-center border-2 border-emerald-800/60">
+                <video id="qr-webcam-video" class="hidden w-full h-full object-cover" playsinline muted></video>
+                <div id="qr-webcam-placeholder" class="text-center p-6 space-y-2">
+                  <div class="w-14 h-14 rounded-2xl bg-emerald-500/15 border border-emerald-400/30 text-emerald-400 flex items-center justify-center mx-auto">
+                    <i data-lucide="qr-code" class="w-8 h-8"></i>
+                  </div>
+                  <p class="text-xs font-bold text-emerald-300">Lector Óptico QR UTVM Listo</p>
+                  <p class="text-[11px] text-slate-400">Active la cámara web o seleccione un código QR simulado del Equipo 4 debajo</p>
+                </div>
+                <!-- Esquinas y láser del escáner -->
+                <div class="qr-corner qr-corner-tl"></div>
+                <div class="qr-corner qr-corner-tr"></div>
+                <div class="qr-corner qr-corner-bl"></div>
+                <div class="qr-corner qr-corner-br"></div>
+                <div class="scanner-laser"></div>
+              </div>
+
+              <!-- Botones Rápidos de Simulación QR (Equipo 4) -->
+              <div class="space-y-2 pt-1">
+                <p class="text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
+                  Simuladores Rápidos de Lectura Óptica QR (Equipo 4)
+                </p>
+
+                <button id="btn-sim-qr-erick" onclick="simularLecturaQR('LAB-2026-9812', 'Escaner_QR')"
+                  class="w-full p-2.5 rounded-xl border border-emerald-300 bg-emerald-50/70 hover:bg-emerald-100 text-emerald-950 transition text-left">
+                  <div class="flex items-center justify-between w-full">
+                    <span class="flex items-center gap-1.5 font-bold text-xs">
+                      <i data-lucide="qr-code" class="w-4 h-4 text-emerald-700"></i>
+                      Simular QR de Erick (LAB-2026-9812)
+                    </span>
+                    <span class="px-1.5 py-0.5 text-[10px] rounded bg-amber-200 text-amber-900 font-bold">Caso Sección 5</span>
+                  </div>
+                </button>
+
+                <button onclick="simularLecturaQR('LAB-2026-9813', 'Escaner_QR')"
+                  class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 text-slate-800 transition flex items-center justify-between">
+                  <span class="flex items-center gap-1.5 font-bold text-xs">
+                    <i data-lucide="qr-code" class="w-4 h-4 text-emerald-700"></i>
+                    Simular QR de Jonathan (LAB-2026-9813)
+                  </span>
+                  <span class="px-1.5 py-0.5 text-[10px] rounded bg-emerald-100 text-emerald-800 font-bold">Confirmado</span>
+                </button>
+
+                <button onclick="simularLecturaQR('LAB-2026-9814', 'Escaner_QR')"
+                  class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 text-slate-800 transition flex items-center justify-between">
+                  <span class="flex items-center gap-1.5 font-bold text-xs">
+                    <i data-lucide="qr-code" class="w-4 h-4 text-emerald-700"></i>
+                    Simular QR de Diana (LAB-2026-9814)
+                  </span>
+                  <span class="px-1.5 py-0.5 text-[10px] rounded bg-emerald-100 text-emerald-800 font-bold">Confirmado</span>
+                </button>
+
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                  <button onclick="simularLecturaQR('LAB-2026-9810', 'Escaner_QR')"
+                    class="p-2 rounded-xl border border-amber-200 bg-amber-50/60 hover:bg-amber-100 text-amber-900 text-[11px] font-bold transition text-center">
+                    ⚠ Simular QR Ya Usado (Misael LAB-2026-9810)
+                  </button>
+                  <button onclick="simularLecturaQR('LAB-2026-0000', 'Escaner_QR')"
+                    class="p-2 rounded-xl border border-rose-200 bg-rose-50/60 hover:bg-rose-100 text-rose-900 text-[11px] font-bold transition text-center">
+                    ✕ Simular QR Inválido (LAB-2026-0000)
+                  </button>
+                </div>
+              </div>
+
+              <!-- Búsqueda y Validación Manual por Folio Alfanumérico -->
+              <div class="pt-3 border-t border-slate-200 space-y-2">
+                <label for="input-folio-manual" class="block text-xs font-bold text-slate-700">
+                  Verificación Manual por Folio Alfanumérico (Respaldo ante fallo óptico)
+                </label>
+                <div class="flex gap-2">
+                  <input id="input-folio-manual" type="text" placeholder="Ej. LAB-2026-9812"
+                    onkeydown="if(event.key==='Enter') validarFolioManual()"
+                    class="flex-1 px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-mono font-bold uppercase focus:outline-none focus:ring-2 focus:ring-emerald-600" />
+                  <button onclick="validarFolioManual()"
+                    class="px-4 py-2 rounded-xl text-xs font-bold bg-[#0F5132] text-white hover:bg-[#047857] transition shrink-0">
+                    Validar Folio
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Columna Derecha (7 cols): Panel de Resultado de Validación + Bitácora de Accesos -->
+          <div class="lg:col-span-7 space-y-5">
+            <!-- Panel de Resultado de Validación -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+              <div class="flex items-center justify-between">
+                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <i data-lucide="shield-check" class="w-4 h-4 text-emerald-700"></i>
+                  Panel de Resultado de Validación y Check-in
+                </h3>
+                <span class="text-[11px] text-slate-500">Bloqueo automático contra segundo uso</span>
+              </div>
+              <div id="qr-validation-result-card"></div>
+            </div>
+
+            <!-- Tabla Bitácora de Accesos (bitacora_accesos) -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                <div>
+                  <h3 class="text-sm font-bold text-slate-900">Bitácora de Accesos Registrados (<code class="font-mono text-xs text-emerald-800">bitacora_accesos</code>)</h3>
+                  <p class="text-[11px] text-slate-500">Historial en vivo de ingresos (Check-in) e intentos de validación</p>
+                </div>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase text-slate-600">
+                      <th class="px-4 py-2.5">Folio Validado</th>
+                      <th class="px-4 py-2.5">Estudiante</th>
+                      <th class="px-4 py-2.5">Laboratorio</th>
+                      <th class="px-4 py-2.5">Método</th>
+                      <th class="px-4 py-2.5">Resultado</th>
+                      <th class="px-4 py-2.5">Fecha y Hora Ingreso</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tabla-bitacora-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =============================================================================
+           MÓDULO 3: CATÁLOGO Y DISPONIBILIDAD DE LABORATORIOS Y EQUIPOS (PANTALLA 3.1)
+           ============================================================================= -->
+      <section id="section-mod3" class="module-section hidden space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-[#047857]">Módulo 3 • Pantalla 3.1</span>
+            <h1 class="text-2xl font-extrabold text-slate-900">Catálogo y Disponibilidad de Laboratorios y Equipos</h1>
+            <p class="text-xs text-slate-600 mt-0.5">
+              Administre la capacidad máxima, horarios, inventario tecnológico, requisitos obligatorios y estatus operativo en tiempo real.
+            </p>
+          </div>
+        </div>
+
+        <!-- Aviso cuando el rol activo es 2.2 Encargado de Laboratorio -->
+        <div id="mod3-role-notice" class="hidden p-4 rounded-2xl bg-amber-50 border border-amber-300 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-3 text-xs text-amber-950">
+            <i data-lucide="lock" class="w-5 h-5 text-amber-700 shrink-0"></i>
+            <div>
+              <p class="font-bold">Modo Consulta (Rol 2.2 Encargado de Laboratorio Activo)</p>
+              <p class="text-amber-800">La edición estructural del catálogo y cambio manual de estatus operativo está reservada para el Rol <strong>2.1 Administrador / Coordinador Académico</strong>.</p>
+            </div>
+          </div>
+          <button onclick="cambiarRolEnVivo('Administrador')"
+            class="px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-700 text-white hover:bg-amber-800 transition">
+            Cambiar a Rol 2.1 Administrador
+          </button>
+        </div>
+
+        <!-- Grid de Tarjetas de los 4 Laboratorios de la UTVM -->
+        <div id="grid-laboratorios" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+      </section>
+
+      <!-- =============================================================================
+           MÓDULO 4: REPORTES Y ESTADÍSTICAS DE USO (PANTALLA 4.1)
+           ============================================================================= -->
+      <section id="section-mod4" class="module-section hidden space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4 no-print">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-[#047857]">Módulo 4 • Pantalla 4.1</span>
+            <h1 class="text-2xl font-extrabold text-slate-900">Panel de Estadísticas Analíticas y Exportación de Auditoría</h1>
+            <p class="text-xs text-slate-600 mt-0.5">
+              Indicadores de ocupación por laboratorio, identificación de horas pico, tasa de asistencia efectiva y exportación a Excel (CSV) / PDF.
+            </p>
+          </div>
+
+          <!-- Botones de Exportación -->
+          <div class="flex items-center gap-2.5">
+            <button onclick="exportarReporteCSV()"
+              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-[#047857] text-white hover:bg-[#0F5132] shadow-sm transition">
+              <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+              <span>Exportar a Excel (CSV)</span>
+            </button>
+            <button onclick="imprimirReportePDF()"
+              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 shadow-sm transition">
+              <i data-lucide="printer" class="w-4 h-4"></i>
+              <span>Exportar a PDF / Imprimir Reporte</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filtros de Reporte (Rango de fechas, Laboratorio y Carrera) -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 no-print">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 mb-1">Fecha Inicio</label>
+            <input type="date" value="2026-09-01"
+              onchange="actualizarFiltroMod4('fechaInicio', this.value)"
+              class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-600" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 mb-1">Fecha Fin</label>
+            <input type="date" value="2026-10-31"
+              onchange="actualizarFiltroMod4('fechaFin', this.value)"
+              class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-600" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 mb-1">Tipo de Laboratorio</label>
+            <select id="mod4-lab-select" onchange="actualizarFiltroMod4('id_laboratorio', this.value)"
+              class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600">
+              <option value="Todos">Todos los laboratorios</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 mb-1">Programa Educativo (Carrera)</label>
+            <select onchange="actualizarFiltroMod4('carrera', this.value)"
+              class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600">
+              <option value="Todas">Todas las carreras UTVM</option>
+              <option value="T.S.U. en Inteligencia Artificial">T.S.U. en Inteligencia Artificial</option>
+              <option value="T.S.U. en Desarrollo de Software Multiplataforma">T.S.U. en Desarrollo de Software Multiplataforma</option>
+              <option value="Ingeniería en Tecnologías de la Información e Innovación Digital">Ingeniería en TI e Innovación Digital</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 3 Gráficas Analíticas Interactivas -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Gráfica 1: Ocupación y Demanda por Laboratorio -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm print-card space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Gráfica Analítica 1</span>
+                <h3 class="text-sm font-bold text-slate-900">Ocupación y Demanda por Laboratorio</h3>
+              </div>
+              <i data-lucide="pie-chart" class="w-5 h-5 text-emerald-700"></i>
+            </div>
+            <div id="chart-ocupacion-labs" class="space-y-3.5"></div>
+          </div>
+
+          <!-- Gráfica 2: Demanda por Bloques Horarios (Horas Pico) -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm print-card space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Gráfica Analítica 2</span>
+                <h3 class="text-sm font-bold text-slate-900">Demanda por Bloques Horarios (Horas Pico)</h3>
+              </div>
+              <i data-lucide="Flame" class="w-5 h-5 text-amber-500"></i>
+            </div>
+            <div id="chart-bloques-horarios" class="space-y-3.5"></div>
+          </div>
+
+          <!-- Gráfica 3: Tasa de Asistencia Efectiva vs Cancelaciones y Carrera -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm print-card space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Gráfica Analítica 3</span>
+                <h3 class="text-sm font-bold text-slate-900">Asistencia Efectiva vs. Cancelaciones</h3>
+              </div>
+              <i data-lucide="activity" class="w-5 h-5 text-blue-600"></i>
+            </div>
+            <div id="chart-tasa-asistencia" class="space-y-3"></div>
+          </div>
+        </div>
+
+        <!-- Tabla Consolidada de Auditoría -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-card">
+          <div class="px-5 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900"> Padrón Consolidado de Auditoría de Reservaciones UTVM</h3>
+              <p class="text-xs text-slate-500">Incluye bitácora de folios generados, asistencias confirmadas y justificaciones de cancelación</p>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase text-slate-600">
+                  <th class="px-4 py-3">Folio</th>
+                  <th class="px-4 py-3">Estudiante</th>
+                  <th class="px-4 py-3">Matrícula</th>
+                  <th class="px-4 py-3">Carrera</th>
+                  <th class="px-4 py-3">Laboratorio</th>
+                  <th class="px-4 py-3">Fecha y Bloque</th>
+                  <th class="px-4 py-3">Estado</th>
+                  <th class="px-4 py-3">Práctica / Motivo de Cancelación</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-auditoria-mod4"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- =================================================================================
+       MODAL PANTALLA 1.2: DETALLE DE SOLICITUD DE RESERVA Y DICTAMEN
+       ================================================================================= -->
+  <div id="modal-detalle-reserva" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div id="modal-detalle-reserva-content" class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full animate-modal overflow-hidden"></div>
+  </div>
+
+  <!-- =================================================================================
+       MODAL PANTALLA 3.1: EDITAR LABORATORIO ACADÉMICO
+       ================================================================================= -->
+  <div id="modal-editar-lab" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full animate-modal overflow-hidden">
+      <div class="bg-[#0F5132] text-white px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <i data-lucide="settings-2" class="w-5 h-5 text-emerald-300"></i>
+          <h3 class="text-base font-bold">Editar Parámetros del Laboratorio Académico</h3>
+        </div>
+        <button onclick="cerrarModalEditarLab()" class="text-emerald-100 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="guardarEdicionLaboratorio(event)" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+        <input type="hidden" id="edit-lab-id" />
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Nombre del Laboratorio</label>
+          <input id="edit-lab-nombre" type="text" required
+            class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-600" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Edificio</label>
+            <input id="edit-lab-edificio" type="text" required
+              class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Planta / Nivel</label>
+            <input id="edit-lab-planta" type="text" required
+              class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Horario de Atención</label>
+            <input id="edit-lab-horario" type="text" required
+              class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Capacidad Máxima</label>
+            <input id="edit-lab-capacidad" type="number" min="1" max="100" required
+              class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-mono font-bold" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Cupo Ocupado Actual</label>
+            <input id="edit-lab-cupo" type="number" min="0" max="100" required
+              class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-mono font-bold" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Estatus Operativo</label>
+            <select id="edit-lab-estatus"
+              class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold bg-white">
+              <option value="Disponible">Disponible</option>
+              <option value="Saturado">Saturado</option>
+              <option value="En Mantenimiento">En Mantenimiento</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Inventario de Equipos y Software (separados por coma)</label>
+          <textarea id="edit-lab-inventario" rows="2" required
+            class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Requisitos Obligatorios de Ingreso (separados por coma)</label>
+          <textarea id="edit-lab-requisitos" rows="2" required
+            class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-200">
+          <button type="button" onclick="cerrarModalEditarLab()"
+            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200">
+            Cancelar
+          </button>
+          <button type="submit"
+            class="px-5 py-2 rounded-xl text-xs font-bold bg-[#047857] text-white hover:bg-[#0F5132] shadow-sm">
+            Guardar y Sincronizar con App Móvil
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =================================================================================
+       MODAL SIMULADOR DE SOLICITUD DESDE APP MÓVIL "RESERVAS LABS UTVM"
+       ================================================================================= -->
+  <div id="modal-simular-app" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full animate-modal overflow-hidden">
+      <div class="bg-[#0F5132] text-white px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <i data-lucide="smartphone" class="w-5 h-5 text-emerald-300"></i>
+          <div>
+            <span class="text-[10px] uppercase tracking-wider text-emerald-200 font-bold">Simulador de Sincronización</span>
+            <h3 class="text-base font-bold">Enviar Solicitud desde App Móvil "Reservas Labs UTVM"</h3>
+          </div>
+        </div>
+        <button onclick="cerrarModalNuevaSolicitudApp()" class="text-emerald-100 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="enviarSolicitudDesdeAppMovil(event)" class="p-6 space-y-3.5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Matrícula Estudiante *</label>
+            <input id="app-sim-matricula" type="text" required placeholder="Ej. 2530706" value="2530709"
+              class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-mono font-bold" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Nombre Completo *</label>
+            <input id="app-sim-nombre" type="text" required placeholder="Nombre del alumno UTVM" value="Valeria Morales Ángeles"
+              class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Carrera / Programa Educativo</label>
+          <select id="app-sim-carrera" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white">
+            <option value="T.S.U. en Inteligencia Artificial">T.S.U. en Inteligencia Artificial</option>
+            <option value="T.S.U. en Desarrollo de Software Multiplataforma">T.S.U. en Desarrollo de Software Multiplataforma</option>
+            <option value="Ingeniería en Tecnologías de la Información e Innovación Digital">Ingeniería en Tecnologías de la Información e Innovación Digital</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Laboratorio Solicitado</label>
+          <select id="app-sim-lab" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white font-semibold"></select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Fecha de Reserva</label>
+            <input id="app-sim-fecha" type="date" required value="2026-09-28"
+              class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Bloque Horario</label>
+            <select id="app-sim-bloque" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white font-semibold">
+              <option value="08:30 - 10:00 hrs">08:30 - 10:00 hrs</option>
+              <option value="10:00 - 11:30 hrs" selected>10:00 - 11:30 hrs</option>
+              <option value="11:30 - 13:00 hrs">11:30 - 13:00 hrs</option>
+              <option value="13:00 - 14:30 hrs">13:00 - 14:30 hrs</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Motivo Académico de Uso *</label>
+          <textarea id="app-sim-motivo" rows="2" required
+            class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs">Práctica de adquisición de datos con sensores e integración con API REST en XAMPP</textarea>
+        </div>
+
+        <label class="flex items-start gap-2.5 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-950 cursor-pointer">
+          <input id="app-sim-acepto" type="checkbox" checked class="mt-0.5 w-4 h-4 accent-emerald-700" />
+          <span><strong>Acepto explícitamente el reglamento de laboratorio</strong> y los requisitos de seguridad e ingreso de la UTVM.</span>
+        </label>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
+          <button type="button" onclick="cerrarModalNuevaSolicitudApp()"
+            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200">
+            Cancelar
+          </button>
+          <button type="submit"
+            class="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold bg-[#047857] text-white hover:bg-[#0F5132] shadow-sm">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i> Enviar Solicitud al Administrador
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =================================================================================
+       MODAL PANEL XAMPP / MYSQL (CONEXIÓN 3306, GUÍA HTDOCS Y DESCARGA SQL)
+       ================================================================================= -->
+  <div id="modal-xampp-panel" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full animate-modal overflow-hidden">
+      <div class="bg-[#0F5132] text-white px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center">
+            <i data-lucide="database" class="w-5 h-5 text-emerald-200"></i>
+          </div>
+          <div>
+            <span class="text-[10px] uppercase tracking-wider text-emerald-200 font-bold">Infraestructura Local Apache + MySQL + phpMyAdmin</span>
+            <h3 class="text-base font-bold">Panel de Configuración XAMPP y Base de Datos MySQL (Puerto 3306)</h3>
+          </div>
+        </div>
+        <button onclick="cerrarModalXAMPP()" class="text-emerald-100 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-5 max-h-[82vh] overflow-y-auto text-xs">
+        <!-- Estado en vivo -->
+        <div id="modal-xampp-live-status"></div>
+
+        <!-- Parámetros de Conexión en XAMPP -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <p class="text-[10px] text-slate-500 font-bold uppercase">Host MySQL</p>
+            <p class="font-mono font-bold text-slate-900 mt-0.5">localhost</p>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <p class="text-[10px] text-slate-500 font-bold uppercase">Puerto</p>
+            <p class="font-mono font-bold text-emerald-800 mt-0.5">3306</p>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <p class="text-[10px] text-slate-500 font-bold uppercase">Usuario</p>
+            <p class="font-mono font-bold text-slate-900 mt-0.5">root</p>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <p class="text-[10px] text-slate-500 font-bold uppercase">Contraseña</p>
+            <p class="font-mono font-bold text-slate-500 mt-0.5">"" (vacía)</p>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 sm:col-span-2">
+            <p class="text-[10px] text-slate-500 font-bold uppercase">Base de Datos</p>
+            <p class="font-mono font-bold text-emerald-800 mt-0.5">utvm_reservas_labs</p>
+          </div>
+        </div>
+
+        <!-- Guía Rápida de Despliegue en XAMPP -->
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+          <h4 class="font-bold text-slate-900 flex items-center gap-1.5">
+            <i data-lucide="folder-git-2" class="w-4 h-4 text-emerald-700"></i>
+            Guía Rápida de Despliegue en XAMPP (<code class="font-mono">C:\xampp\htdocs\utvm_reservas_labs</code>)
+          </h4>
+          <ol class="list-decimal list-inside space-y-1 text-slate-700">
+            <li>Abra el <strong>Panel de Control de XAMPP</strong> e inicie los módulos <strong>Apache</strong> y <strong>MySQL</strong> (Puerto <code class="font-mono font-bold">3306</code>).</li>
+            <li>Copie esta carpeta del proyecto dentro de <code class="font-mono font-bold bg-white px-1.5 py-0.5 rounded border">C:\xampp\htdocs\utvm_reservas_labs</code>.</li>
+            <li>Abra <a href="http://localhost/phpmyadmin" target="_blank" class="text-emerald-700 font-bold underline">http://localhost/phpmyadmin</a> e importe el archivo <code class="font-mono font-bold">database/utvm_reservas_labs.sql</code> (o simplemente abra <code class="font-mono font-bold">http://localhost/utvm_reservas_labs/</code> y el backend <code class="font-mono">api/conexion.php</code> auto-aprovisionará la base de datos automáticamente).</li>
+          </ol>
+        </div>
+
+        <!-- Botones de Acción de Base de Datos -->
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="intentarConexionXAMPP(true)"
+              class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-bold bg-[#047857] text-white hover:bg-[#0F5132] transition">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Probar Conexión XAMPP MySQL
+            </button>
+            <button onclick="descargarScriptSQL()"
+              class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-bold bg-slate-900 text-white hover:bg-slate-800 transition">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i> Descargar utvm_reservas_labs.sql
+            </button>
+            <button onclick="copiarCodigoSQLPortapapeles()"
+              class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-semibold bg-slate-100 text-slate-800 hover:bg-slate-200 border border-slate-300 transition">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar SQL
+            </button>
+          </div>
+
+          <button onclick="restaurarDatosSemillaEquipo4()"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-bold bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 transition">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Restaurar Datos Semilla (Equipo 4)
+          </button>
+        </div>
+
+        <!-- Vista previa del Script SQL -->
+        <div>
+          <p class="font-bold text-slate-700 mb-1.5">Estructura SQL de las 4 Tablas (<code class="font-mono">database/utvm_reservas_labs.sql</code>):</p>
+          <pre id="xampp-sql-preview" class="p-4 rounded-xl bg-slate-950 text-emerald-300 font-mono text-[11px] overflow-x-auto max-h-56 leading-relaxed">CREATE DATABASE IF NOT EXISTS `utvm_reservas_labs` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `utvm_reservas_labs`;
+
+-- 1. Tabla: usuarios_admin
+CREATE TABLE `usuarios_admin` (
+  `id_usuario` INT AUTO_INCREMENT PRIMARY KEY,
+  `nombre_completo` VARCHAR(120) NOT NULL,
+  `correo` VARCHAR(120) NOT NULL UNIQUE,
+  `password_hash` VARCHAR(255) NOT NULL,
+  `rol` ENUM('Administrador', 'Encargado') NOT NULL DEFAULT 'Encargado',
+  `activo` TINYINT(1) NOT NULL DEFAULT 1
+);
+
+-- 2. Tabla: laboratorios
+CREATE TABLE `laboratorios` (
+  `id_laboratorio` INT AUTO_INCREMENT PRIMARY KEY,
+  `nombre` VARCHAR(120) NOT NULL,
+  `edificio` VARCHAR(60) NOT NULL,
+  `planta` VARCHAR(60) NOT NULL,
+  `capacidad_maxima` INT NOT NULL DEFAULT 25,
+  `cupo_ocupado_actual` INT NOT NULL DEFAULT 0,
+  `horario_atencion` VARCHAR(80) NOT NULL,
+  `inventario_equipos` TEXT NOT NULL,
+  `requisitos_obligatorios` TEXT NOT NULL,
+  `estatus_operativo` ENUM('Disponible', 'Saturado', 'En Mantenimiento') NOT NULL DEFAULT 'Disponible',
+  `id_encargado` INT DEFAULT NULL,
+  FOREIGN KEY (`id_encargado`) REFERENCES `usuarios_admin`(`id_usuario`)
+);
+
+-- 3. Tabla: reservaciones
+CREATE TABLE `reservaciones` (
+  `id_reservacion` INT AUTO_INCREMENT PRIMARY KEY,
+  `folio` VARCHAR(30) DEFAULT NULL UNIQUE,
+  `matricula_estudiante` VARCHAR(20) NOT NULL,
+  `nombre_estudiante` VARCHAR(120) NOT NULL,
+  `carrera` VARCHAR(120) NOT NULL,
+  `id_laboratorio` INT NOT NULL,
+  `fecha_reserva` DATE NOT NULL,
+  `bloque_horario` VARCHAR(50) NOT NULL,
+  `motivo_uso` TEXT NOT NULL,
+  `acepto_requisitos` TINYINT(1) NOT NULL DEFAULT 1,
+  `estado` ENUM('Pendiente', 'Confirmado', 'Asistio', 'Cancelado') NOT NULL DEFAULT 'Pendiente',
+  `motivo_cancelacion` TEXT DEFAULT NULL,
+  `codigo_qr_hash` VARCHAR(150) DEFAULT NULL,
+  `fecha_solicitud` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`id_laboratorio`) REFERENCES `laboratorios`(`id_laboratorio`)
+);
+
+-- 4. Tabla: bitacora_accesos
+CREATE TABLE `bitacora_accesos` (
+  `id_acceso` INT AUTO_INCREMENT PRIMARY KEY,
+  `id_reservacion` INT DEFAULT NULL,
+  `folio_validado` VARCHAR(30) NOT NULL,
+  `id_encargado_valido` INT DEFAULT NULL,
+  `metodo_validacion` ENUM('Escaner_QR', 'Folio_Manual') NOT NULL DEFAULT 'Escaner_QR',
+  `resultado_validacion` ENUM('Valido', 'Invalido', 'Ya_Utilizado') NOT NULL DEFAULT 'Valido',
+  `fecha_hora_ingreso` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`id_reservacion`) REFERENCES `reservaciones`(`id_reservacion`),
+  FOREIGN KEY (`id_encargado_valido`) REFERENCES `usuarios_admin`(`id_usuario`)
+);</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenedor de Alertas Toast en Tiempo Real -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-md w-full pointer-events-auto"></div>
+
+  <!-- Lógica Principal de la Aplicación -->
+  <script src="./assets/js/app.js"></script>
+</body>
+</html>

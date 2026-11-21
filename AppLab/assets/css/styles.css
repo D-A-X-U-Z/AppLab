@@ -1,0 +1,117 @@
+/* =====================================================================================
+   ESTILOS INSTITUCIONALES - SISTEMA ADMINISTRADOR DE LABORATORIOS UTVM
+   Paleta: Verde Institucional UTVM (#0F5132, #047857), Pizarra (#F8FAFC)
+   ===================================================================================== */
+
+:root {
+  --utvm-green-dark: #0F5132;
+  --utvm-green-primary: #047857;
+  --utvm-green-light: #D1FAE5;
+  --utvm-gold: #D97706;
+  --utvm-bg: #F8FAFC;
+}
+
+body {
+  background-color: var(--utvm-bg);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #0F172A;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Animación de láser para el escáner óptico QR (Módulo 2) */
+@keyframes scanLaser {
+  0% {
+    top: 8%;
+    opacity: 0.85;
+  }
+  50% {
+    top: 88%;
+    opacity: 1;
+  }
+  100% {
+    top: 8%;
+    opacity: 0.85;
+  }
+}
+
+.scanner-laser {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #10B981, #34D399, #10B981, transparent);
+  box-shadow: 0 0 12px 2px rgba(16, 185, 129, 0.85);
+  animation: scanLaser 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Esquinas del visor óptico QR */
+.qr-corner {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border-color: #10B981;
+  pointer-events: none;
+}
+.qr-corner-tl { top: 16px; left: 16px; border-top: 3px solid #10B981; border-left: 3px solid #10B981; border-top-left-radius: 8px; }
+.qr-corner-tr { top: 16px; right: 16px; border-top: 3px solid #10B981; border-right: 3px solid #10B981; border-top-right-radius: 8px; }
+.qr-corner-bl { bottom: 16px; left: 16px; border-bottom: 3px solid #10B981; border-left: 3px solid #10B981; border-bottom-left-radius: 8px; }
+.qr-corner-br { bottom: 16px; right: 16px; border-bottom: 3px solid #10B981; border-right: 3px solid #10B981; border-bottom-right-radius: 8px; }
+
+/* Animación suave de entrada de modales y tarjetas */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-modal {
+  animation: fadeInScale 0.18s ease-out forwards;
+}
+
+/* Estilos de impresión para Reporte PDF Institucional (Módulo 4) */
+@media print {
+  body {
+    background: #FFFFFF !important;
+  }
+  #sidebar-nav,
+  #top-header,
+  .no-print,
+  #toast-container {
+    display: none !important;
+  }
+  #main-content {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .print-card {
+    box-shadow: none !important;
+    border: 1px solid #CBD5E1 !important;
+    break-inside: avoid;
+  }
+}
